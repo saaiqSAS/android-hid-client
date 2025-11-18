@@ -71,18 +71,103 @@ fun ManualInput(
     }
 }
 
+//-----ORIGINAL-----
+//fun sendInput(stringToSend: String, mainViewModel: MainViewModel) {
+//    // Sends all keys
+//    for (char in stringToSend) {
+//        val scanCodes = KeyCodeTranslation.keyCharToScanCodes(char)
+//        if (scanCodes == null) {
+//            val error = "key: '$char' is not supported."
+//            Timber.e(error)
+//            // FIXME: snackbar
+//            // Snackbar.make(parentLayout, error, Snackbar.LENGTH_SHORT).show()
+//            return
+//        }
+//
+//        mainViewModel.addStandardKey(scanCodes.first, scanCodes.second)
+//    }
+//}
+
+//-----saaiqSAS-----
 fun sendInput(stringToSend: String, mainViewModel: MainViewModel) {
-    // Sends all keys
-    for (char in stringToSend) {
-        val scanCodes = KeyCodeTranslation.keyCharToScanCodes(char)
+    // Updated to allow the use of {[X]} format in the manual input field or in any String passed to this method
+    // Hence setting a mockup foundation for scripting and automation
+    // {[C]} for Ctrl
+    // {[A]} for Alt
+    // {[S]} for Shift
+    // {[M]} for Meta/Windows key
+    // {[E]} for Escape
+    // {[T]} for Tab
+    // {[B]} for Backspace
+    // {[U]} for Up
+    // {[D]} for Down
+    // {[R]} for Right
+    // {[L]} for Left
+    // {[1]} for F1
+    // {[2]} for F2
+    // {[3]} for F3
+    // {[4]} for F4
+    // {[5]} for F5
+    // {[6]} for F6
+    // {[7]} for F7
+    // {[8]} for F8
+    // {[9]} for F9
+    // {[!]} for F10
+    // {[@]} for F11
+    // {[#]} for F12
+
+    val characters: CharArray = stringToSend.toCharArray()
+    val arrayLength = characters.size
+    var i = 0
+    while (i < arrayLength) {
+        var key: String = characters[i].toString()
+        var scanCodes: Pair<Byte, Byte>?
+
+        if (i+4 < arrayLength) {
+            if (characters[i] == '{' && characters[i + 1] == '[' && characters[i + 3] == ']' && characters[i + 4] == '}') {
+                when (characters[i + 2]) {
+                    'C' -> key = "left-ctrl";
+                    'A' -> key = "left-alt";
+                    'S' -> key = "left-shift";
+                    'M' -> key = "left-meta";
+                    'E' -> key = "escape";
+                    'T' -> key = "tab";
+                    'B' -> key = "backspace";
+                    'U' -> key = "up";
+                    'D' -> key = "down";
+                    'R' -> key = "right";
+                    'L' -> key = "left";
+                    '1' -> key = "f1";
+                    '2' -> key = "f2";
+                    '3' -> key = "f3";
+                    '4' -> key = "f4";
+                    '5' -> key = "f5";
+                    '6' -> key = "f6";
+                    '7' -> key = "f7";
+                    '8' -> key = "f8";
+                    '9' -> key = "f9";
+                    '!' -> key = "f10";
+                    '@' -> key = "f11";
+                    '#' -> key = "f12";
+                }
+                 scanCodes = KeyCodeTranslation.keyCharToScanCodes(key)
+                i+=4
+            } else {
+                scanCodes = KeyCodeTranslation.keyCharToScanCodes(characters[i])
+            }
+        } else {
+            scanCodes = KeyCodeTranslation.keyCharToScanCodes(characters[i])
+        }
+        i++;
+
+       
         if (scanCodes == null) {
-            val error = "key: '$char' is not supported."
+            val error = "key: '$key' is not supported."
             Timber.e(error)
-            // FIXME: snackbar
-            // Snackbar.make(parentLayout, error, Snackbar.LENGTH_SHORT).show()
             return
         }
 
         mainViewModel.addStandardKey(scanCodes.first, scanCodes.second)
     }
+
 }

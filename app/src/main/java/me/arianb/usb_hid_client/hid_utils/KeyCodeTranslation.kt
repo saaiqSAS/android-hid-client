@@ -48,6 +48,28 @@ object KeyCodeTranslation {
         return Pair(modifier, keyScanCode)
     }
 
+    //saaiqSAS
+    fun keyCharToScanCodes(key: String): Pair<Byte, Byte>? {
+        //Log.d(TAG, "converting following key into scan code: " + key);
+
+        val keyString = key
+
+        // If key is shift + another key, add left-shift scan code
+        val modifier: Byte
+        val keyScanCode: Byte?
+
+            modifier = 0x0
+            keyScanCode = hidKeyCodes[keyString]
+
+
+        if (keyScanCode == null) {
+            Timber.e("key: '$keyString' could not be converted to an HID code (it wasn't found in the map)")
+            return null
+        }
+
+        return Pair(modifier, keyScanCode)
+    }
+
     fun keyCodeToScanCode(keyCode: Int): Byte? =
         hidKeyCodes[keyEventKeys[keyCode]]
 

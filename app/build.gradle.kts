@@ -16,8 +16,8 @@ android {
         compileSdk = 35
 
         // App Versioning
-        versionCode = 3010
-        versionName = "v3.0.1.saaiqsas_0"
+        versionCode = 3011
+        versionName = "v3.0.1_saaiqsas_1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
