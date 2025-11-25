@@ -88,14 +88,17 @@ fun ManualInput(
 //    }
 //}
 
-//-----saaiqSAS-----
+
+//---------- saaiqSAS ----------
 fun sendInput(stringToSend: String, mainViewModel: MainViewModel) {
     // Updated to allow the use of {[X]} format in the manual input field or in any String passed to this method
     // Hence setting a mockup foundation for scripting and automation
+
     // {[C]} for Ctrl
     // {[A]} for Alt
     // {[S]} for Shift
     // {[M]} for Meta/Windows key
+
     // {[E]} for Escape
     // {[T]} for Tab
     // {[B]} for Backspace
@@ -116,16 +119,15 @@ fun sendInput(stringToSend: String, mainViewModel: MainViewModel) {
     // {[@]} for F11
     // {[#]} for F12
 
-    val characters: CharArray = stringToSend.toCharArray()
-    val arrayLength = characters.size
+    val arrayLength = stringToSend.length
     var i = 0
     while (i < arrayLength) {
-        var key: String = characters[i].toString()
+        var key: String = stringToSend[i].toString()
         var scanCodes: Pair<Byte, Byte>?
 
         if (i+4 < arrayLength) {
-            if (characters[i] == '{' && characters[i + 1] == '[' && characters[i + 3] == ']' && characters[i + 4] == '}') {
-                when (characters[i + 2]) {
+            if (stringToSend[i] == '{' && stringToSend[i + 1] == '[' && stringToSend[i + 3] == ']' && stringToSend[i + 4] == '}') {
+                when (stringToSend[i + 2]) {
                     'C' -> key = "left-ctrl";
                     'A' -> key = "left-alt";
                     'S' -> key = "left-shift";
@@ -153,16 +155,16 @@ fun sendInput(stringToSend: String, mainViewModel: MainViewModel) {
                  scanCodes = KeyCodeTranslation.keyCharToScanCodes(key)
                 i+=4
             } else {
-                scanCodes = KeyCodeTranslation.keyCharToScanCodes(characters[i])
+                scanCodes = KeyCodeTranslation.keyCharToScanCodes(stringToSend[i].toString())
             }
         } else {
-            scanCodes = KeyCodeTranslation.keyCharToScanCodes(characters[i])
+            scanCodes = KeyCodeTranslation.keyCharToScanCodes(stringToSend[i].toString())
         }
         i++;
 
        
         if (scanCodes == null) {
-            val error = "key: '$key' is not supported."
+            val error = "key: '$key' is not supported. Or is a modifier. If its a modifier, then this error is not a real error."
             Timber.e(error)
             return
         }
@@ -171,3 +173,4 @@ fun sendInput(stringToSend: String, mainViewModel: MainViewModel) {
     }
 
 }
+// --------------------

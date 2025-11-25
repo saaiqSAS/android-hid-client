@@ -48,27 +48,56 @@ object KeyCodeTranslation {
         return Pair(modifier, keyScanCode)
     }
 
-    //saaiqSAS
+    //---------- saaiqSAS ----------
+    /*
+     This new updated keyCharToScanCodes() method below allows the use of modifier keys. When a modifier key is passed to the method,
+     it will store that modifier until next time a new 'key' is passed. And on the second time, the previously set modifier
+     will be used with the passed 'key', and then  modifier will be reset to none (0x0).
+
+     This allows the use of shortcuts such as Ctrl+C, Win+R, etc.
+
+     NOTE: For now all capital characters should be input as [Shift + simple_char ] format.
+     Eg: To send 'A' we cannot directly pass 'A', we have to pass as follows:
+            (1st pass): {[S]}      // Do note that the {[X]} format for special & modifier keys are being handled by the ManualInput.sendInput()
+            (2nd pass): a
+     */
+    var keyCharToScanCodes_modifier: Byte = 0x0;             // allows the use of modifier for next use of method
+    var keyCharToScanCodes_isModifierUsed: Boolean = false;  // allows the use of modifier for next use of method
     fun keyCharToScanCodes(key: String): Pair<Byte, Byte>? {
-        //Log.d(TAG, "converting following key into scan code: " + key);
 
-        val keyString = key
+        if (hidModifierCodes.containsKey(key)) {            // If Provided Key is a modifier key
+            keyCharToScanCodes_modifier = when (key) {
+                "left-ctrl" -> 0x01
+                "left-shift" -> LEFT_SHIFT_SCAN_CODE
+                "left-alt" -> 0x04
+                "left-meta" -> 0x08
+                "right-ctrl" -> 0x10
+                "right-shift" -> 0x20
+                "right-alt" -> 0x40
+                "right-meta" -> 0x80.toByte()
+                else -> 0x0
+            }
+            keyCharToScanCodes_isModifierUsed = false
+            return null // will prevent modifiers being returned alone without an actual key
 
-        // If key is shift + another key, add left-shift scan code
-        val modifier: Byte
-        val keyScanCode: Byte?
+        } else if (keyCharToScanCodes_isModifierUsed) { // reset modifier to none (0x0) after 1 use
+            keyCharToScanCodes_modifier = 0x0
 
-            modifier = 0x0
-            keyScanCode = hidKeyCodes[keyString]
+        } else {
+            keyCharToScanCodes_isModifierUsed = true
+        }
+
+        val keyScanCode = hidKeyCodes[key]
 
 
         if (keyScanCode == null) {
-            Timber.e("key: '$keyString' could not be converted to an HID code (it wasn't found in the map)")
+            Timber.e("key: '$key' could not be converted to an HID code (it wasn't found in the map)")
             return null
         }
 
-        return Pair(modifier, keyScanCode)
+        return Pair(keyCharToScanCodes_modifier, keyScanCode)
     }
+    // --------------------
 
     fun keyCodeToScanCode(keyCode: Int): Byte? =
         hidKeyCodes[keyEventKeys[keyCode]]
