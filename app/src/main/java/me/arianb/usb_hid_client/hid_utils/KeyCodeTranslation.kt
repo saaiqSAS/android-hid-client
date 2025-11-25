@@ -64,8 +64,27 @@ object KeyCodeTranslation {
     var keyCharToScanCodes_modifier: Byte = 0x0;             // allows the use of modifier for next use of method
     var keyCharToScanCodes_isModifierUsed: Boolean = false;  // allows the use of modifier for next use of method
     fun keyCharToScanCodes(key: String): Pair<Byte, Byte>? {
+        if (key.isEmpty()) {return Pair(0x0, 0x0)}
 
-        if (hidModifierCodes.containsKey(key)) {            // If Provided Key is a modifier key
+        var keyScanCode: Byte?
+
+        // Dealing with Shifted keys
+        if (shiftChars.containsKey(key)) { // Character is a Shift + Character eg: ! & }
+            keyCharToScanCodes_modifier = LEFT_SHIFT_SCAN_CODE
+            keyCharToScanCodes_isModifierUsed = false
+            keyScanCode = hidKeyCodes[shiftChars[key]]
+
+        } else if (Character.isUpperCase(key[0])) { // Character is a Capital
+            keyCharToScanCodes_modifier = LEFT_SHIFT_SCAN_CODE
+            keyCharToScanCodes_isModifierUsed = false
+            keyScanCode = hidKeyCodes[key.lowercase()]
+
+        } else {
+            keyScanCode = hidKeyCodes[key]
+        }
+
+        // Dealing with modifier keys
+        if (hidModifierCodes.containsKey(key)) { // Key is a modifier key
             keyCharToScanCodes_modifier = when (key) {
                 "left-ctrl" -> 0x01
                 "left-shift" -> LEFT_SHIFT_SCAN_CODE
@@ -78,7 +97,7 @@ object KeyCodeTranslation {
                 else -> 0x0
             }
             keyCharToScanCodes_isModifierUsed = false
-            return null // will prevent modifiers being returned alone without an actual key
+            return Pair(0x0, 0x0) // will prevent modifiers being sent alone without an actual key
 
         } else if (keyCharToScanCodes_isModifierUsed) { // reset modifier to none (0x0) after 1 use
             keyCharToScanCodes_modifier = 0x0
@@ -86,9 +105,6 @@ object KeyCodeTranslation {
         } else {
             keyCharToScanCodes_isModifierUsed = true
         }
-
-        val keyScanCode = hidKeyCodes[key]
-
 
         if (keyScanCode == null) {
             Timber.e("key: '$key' could not be converted to an HID code (it wasn't found in the map)")

@@ -91,14 +91,16 @@ fun ManualInput(
 
 //---------- saaiqSAS ----------
 fun sendInput(stringToSend: String, mainViewModel: MainViewModel) {
-    // Updated to allow the use of {[X]} format in the manual input field or in any String passed to this method
+    // Updated to allow the use of {[X]} tag format in the manual input field or in any String passed to this method
     // Hence setting a mockup foundation for scripting and automation
 
+    // MODIFIER KEYS
     // {[C]} for Ctrl
     // {[A]} for Alt
     // {[S]} for Shift
     // {[M]} for Meta/Windows key
 
+    //SPECIAL KEYS
     // {[E]} for Escape
     // {[T]} for Tab
     // {[B]} for Backspace
@@ -119,6 +121,9 @@ fun sendInput(stringToSend: String, mainViewModel: MainViewModel) {
     // {[@]} for F11
     // {[#]} for F12
 
+    //COMMANDS
+    // {[ ]} to sleep for 500ms
+
     val arrayLength = stringToSend.length
     var i = 0
     while (i < arrayLength) {
@@ -128,29 +133,35 @@ fun sendInput(stringToSend: String, mainViewModel: MainViewModel) {
         if (i+4 < arrayLength) {
             if (stringToSend[i] == '{' && stringToSend[i + 1] == '[' && stringToSend[i + 3] == ']' && stringToSend[i + 4] == '}') {
                 when (stringToSend[i + 2]) {
-                    'C' -> key = "left-ctrl";
-                    'A' -> key = "left-alt";
-                    'S' -> key = "left-shift";
-                    'M' -> key = "left-meta";
-                    'E' -> key = "escape";
-                    'T' -> key = "tab";
-                    'B' -> key = "backspace";
-                    'U' -> key = "up";
-                    'D' -> key = "down";
-                    'R' -> key = "right";
-                    'L' -> key = "left";
-                    '1' -> key = "f1";
-                    '2' -> key = "f2";
-                    '3' -> key = "f3";
-                    '4' -> key = "f4";
-                    '5' -> key = "f5";
-                    '6' -> key = "f6";
-                    '7' -> key = "f7";
-                    '8' -> key = "f8";
-                    '9' -> key = "f9";
-                    '!' -> key = "f10";
-                    '@' -> key = "f11";
-                    '#' -> key = "f12";
+                    'C' -> key = "left-ctrl"
+                    'A' -> key = "left-alt"
+                    'S' -> key = "left-shift"
+                    'M' -> key = "left-meta"
+                    'E' -> key = "escape"
+                    'T' -> key = "tab"
+                    'B' -> key = "backspace"
+                    'U' -> key = "up"
+                    'D' -> key = "down"
+                    'R' -> key = "right"
+                    'L' -> key = "left"
+                    '1' -> key = "f1"
+                    '2' -> key = "f2"
+                    '3' -> key = "f3"
+                    '4' -> key = "f4"
+                    '5' -> key = "f5"
+                    '6' -> key = "f6"
+                    '7' -> key = "f7"
+                    '8' -> key = "f8"
+                    '9' -> key = "f9"
+                    '!' -> key = "f10"
+                    '@' -> key = "f11"
+                    '#' -> key = "f12"
+
+                    ' ' -> { // sleep for 500ms
+                        key = ""
+                        Thread.sleep(500)
+                    }
+
                 }
                  scanCodes = KeyCodeTranslation.keyCharToScanCodes(key)
                 i+=4
@@ -164,12 +175,15 @@ fun sendInput(stringToSend: String, mainViewModel: MainViewModel) {
 
        
         if (scanCodes == null) {
-            val error = "key: '$key' is not supported. Or is a modifier. If its a modifier, then this error is not a real error."
+            val error = "key: '$key' is not supported."
             Timber.e(error)
             return
         }
 
-        mainViewModel.addStandardKey(scanCodes.first, scanCodes.second)
+        if (scanCodes.second != 0x0.toByte()) {
+            mainViewModel.addStandardKey(scanCodes.first, scanCodes.second)
+        }
+
     }
 
 }
