@@ -2,9 +2,14 @@ package me.arianb.usb_hid_client
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.AlertDialog
@@ -38,6 +43,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import me.arianb.usb_hid_client.input_views.DirectInput
 import me.arianb.usb_hid_client.input_views.DirectInputIconButton
 import me.arianb.usb_hid_client.input_views.ManualInput
+import me.arianb.usb_hid_client.input_views.ScriptsDisplayView
 import me.arianb.usb_hid_client.input_views.Touchpad
 import me.arianb.usb_hid_client.settings.SettingsScreen
 import me.arianb.usb_hid_client.settings.SettingsViewModel
@@ -78,9 +84,10 @@ fun MainPage(
 
     val preferences by settingsViewModel.userPreferencesFlow.collectAsState()
     val isDeviceInLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val hideManualInput = preferences.isTouchpadFullscreenInLandscape && isDeviceInLandscape
+    val fullScreenTouchPadEnabled = preferences.isTouchpadFullscreenInLandscape && isDeviceInLandscape
 
     val padding = PaddingNormal
+
     BasicPage(
         snackbarHostState = snackbarHostState,
         topBar = { MainTopBar() },
@@ -94,21 +101,30 @@ fun MainPage(
         // View (Direct Input). Otherwise, there's gonna be an awkward spacing created by the invisible View.
         verticalArrangement = Arrangement.Top
     ) {
+
         if (showMissingCharDeviceOnStartupAlert.value) {
             Timber.d("MISSING CHAR DEV ON START")
             CreateCharDevicesAlertDialog(showMissingCharDeviceOnStartupAlert)
         }
 
-        if (!hideManualInput) {
-            ManualInput()
-            Spacer(Modifier.height(PaddingNormal))
-        }
-
         // This has to be here, if I move it below Touchpad(), it never gets focused. I think it's because it ends up
         // out of the user's view, so Android just doesn't allow it to gain focus.
         DirectInput()
+        Touchpad(fullScreenTouchPadEnabled)
 
-        Touchpad()
+        val scrollState = rememberScrollState()
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .verticalScroll(scrollState)  // Apply vertical scrolling
+        ) {
+
+            if (!fullScreenTouchPadEnabled) {
+                ManualInput()
+                ScriptsDisplayView()
+            }
+        }
 
         LaunchedEffect(uiState) {
             Timber.d("LAUNCHED EFFECT RUNNING WITH UI STATE = %s", uiState.toString())

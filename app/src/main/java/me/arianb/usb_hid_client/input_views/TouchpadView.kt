@@ -11,16 +11,22 @@ import android.view.View
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
+import me.arianb.usb_hid_client.MainScreen
 import me.arianb.usb_hid_client.MainViewModel
 import me.arianb.usb_hid_client.R
 import me.arianb.usb_hid_client.report_senders.pointer_device_senders.PointerDeviceSender
@@ -189,18 +195,26 @@ fun PointerDeviceSender.send(
 )
 
 @Composable
-fun Touchpad(mainViewModel: MainViewModel = viewModel()) {
+fun Touchpad(fullScreenTouchPadEnabled: Boolean) {
+    val mainViewModel: MainViewModel = viewModel()
     val touchpadText = stringResource(R.string.touchpad_label)
     val touchpadSender by mainViewModel.touchpadSender.collectAsState()
 
     val textColor = getColorByTheme()
+    val screenHeightDp = LocalConfiguration.current.screenHeightDp
+
+    var heightPercent = (screenHeightDp * 0.30).dp // 30% of screen
+    if (fullScreenTouchPadEnabled) {
+        heightPercent = (screenHeightDp * 1).dp // fullscreen
+    }
 
     Surface(
         modifier = Modifier
 //            .pointerInput(Unit) {
 //
 //            }
-            .fillMaxSize(),
+            .fillMaxWidth()
+            .heightIn(heightPercent),
         color = MaterialTheme.colorScheme.background,
         border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
     ) {
