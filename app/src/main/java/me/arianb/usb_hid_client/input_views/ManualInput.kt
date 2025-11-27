@@ -1,6 +1,7 @@
 package me.arianb.usb_hid_client.input_views
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
@@ -23,6 +24,7 @@ import me.arianb.usb_hid_client.hid_utils.KeyCodeTranslation
 import me.arianb.usb_hid_client.settings.SettingsViewModel
 import me.arianb.usb_hid_client.ui.theme.PaddingLarge
 import timber.log.Timber
+import java.util.Locale.getDefault
 
 @Composable
 fun ManualInput(
@@ -46,32 +48,64 @@ fun ManualInput(
             label = { Text(stringResource(R.string.manual_input)) },
             onValueChange = { manualInputString = it }
         )
-        Button(
+
+        Column (
             modifier = Modifier.wrapContentSize(),
-            onClick = onClick@{
-                // If empty, don't do anything
-                if (manualInputString.isEmpty()) {
-                    return@onClick
-                }
-
-                // Save string
-                val stringToSend = manualInputString
-                Timber.d("manual input sending string: %s", stringToSend)
-
-                // Clear EditText if the user's preference is to clear it
-                if (shouldClearManualInputOnSend) {
-                    manualInputString = ""
-                }
-
-                sendInput(stringToSend, mainViewModel)
-            }
+            verticalArrangement = Arrangement.spacedBy(PaddingLarge),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(stringResource(R.string.send))
+            Button( // pass to sendString()
+                modifier = Modifier.wrapContentSize(),
+                onClick = onClick@{
+                    // If empty, don't do anything
+                    if (manualInputString.isEmpty()) {
+                        return@onClick
+                    }
+
+                    // Save string
+                    val stringToSend = manualInputString
+                    Timber.d("manual input sending string: %s", stringToSend)
+
+                    // Clear EditText if the user's preference is to clear it
+                    if (shouldClearManualInputOnSend) {
+                        manualInputString = ""
+                    }
+
+                    sendInput(stringToSend, mainViewModel)
+                }
+            ) {
+                Text(stringResource(R.string.send))
+            }
+
+            Button( // pass to scriptExecutor()
+                modifier = Modifier.wrapContentSize(),
+                onClick = onClick@{
+                    // If empty, don't do anything
+                    if (manualInputString.isEmpty()) {
+                        return@onClick
+                    }
+
+                    // Save string
+                    val stringToSend = manualInputString
+                    Timber.d("manual input sending string: %s", stringToSend)
+
+                    // Clear EditText if the user's preference is to clear it
+                    if (shouldClearManualInputOnSend) {
+                        manualInputString = ""
+                    }
+
+                    scriptExecutor(stringToSend, mainViewModel)
+                }
+            ) {
+                Text(stringResource(R.string.exec))
+            }
         }
+
+
     }
 }
 
-//-----ORIGINAL-----
+//-----ORIGINAL for v3.0.1 -----
 //fun sendInput(stringToSend: String, mainViewModel: MainViewModel) {
 //    // Sends all keys
 //    for (char in stringToSend) {
@@ -89,8 +123,8 @@ fun ManualInput(
 //}
 
 
-//---------- saaiqSAS ----------
 fun sendInput(stringToSend: String, mainViewModel: MainViewModel) {
+    //---------- Contributed by saaiqSAS ----------
     // Updated to allow the use of {[X]} tag format in the manual input field or in any String passed to this method
     // Hence setting a mockup foundation for scripting and automation
 
@@ -187,4 +221,104 @@ fun sendInput(stringToSend: String, mainViewModel: MainViewModel) {
     }
 
 }
-// --------------------
+
+fun scriptExecutor(script: String, mainViewModel: MainViewModel) {
+    //---------- Contributed by saaiqSAS ----------
+    // This method allows the use of scripting. The entire script should be passed to this method and it will be executed line by line
+
+    val lines = (script).split("\n")
+
+
+    Timber.d("num of lines: " + lines.size) //test
+
+    for (line in lines) {
+        val command: String
+        var key = ""
+        var para = ""
+        val firstSpace = line.indexOf(" ")
+
+        Timber.d("line: " + line) //test
+
+        if (firstSpace == -1) {
+            command = line
+        } else {
+            command = line.take(firstSpace)
+            para = line.substring(firstSpace + 1)
+        }
+
+        Timber.d("command: $command") //test
+        Timber.d("para: $para") //test
+
+        when (command.uppercase(getDefault())) {
+            //COMMANDS - only commands takes a parameter
+            "//","REM","NAME","DESC","AUTHOR"   -> {} //do nothing
+            "SEND", "STRING"                    -> sendInput(para, mainViewModel)
+            "SENDLN", "STRINGLN"                -> sendInput(para+"\n", mainViewModel)
+            "SLEEP","DELAY"                     -> Thread.sleep(para.toLong())
+
+            //MODIFIER KEYS
+            "L_CTRL", "L_CONTROL", "CTRL"       -> key = "left-ctrl"
+            "L_ALT", "ALT"                      -> key = "left-alt"
+            "L_SHIFT", "SHIFT"                  -> key = "left-shift"
+            "L_META", "L_WIN", "WIN"            -> key = "left-meta"
+            "R_CTRL", "R_CONTROL"               -> key = "right-ctrl"
+            "R_ALT"                             -> key = "right-alt"
+            "R_SHIFT"                           -> key = "right-shift"
+            "R_META", "R_WIN"                   -> key = "right-meta"
+
+            //SPECIAL KEYS
+            "UP"                                -> key = "up"
+            "DOWN"                              -> key = "down"
+            "LEFT"                              -> key = "left"
+            "RIGHT"                             -> key = "right"
+            "ESCAPE", "ESC"                     -> key = "escape"
+            "TAB"                               -> key = "tab"
+            "BACKSPACE","BACK"                  -> key = "backspace"
+            "DELETE","DEL"                      -> key = "delete"
+            "PRINT"                             -> key = "print"
+            "SPACE"                             -> key = " "
+            "ENTER"                             -> key = "\n"
+            "SCROLL_LOCK"                       -> key = "scroll-lock"
+            "NUM_LOCK"                          -> key = "num-lock"
+            "PAUSE"                             -> key = "pause"
+            "INSERT"                            -> key = "insert"
+            "HOME"                              -> key = "home"
+            "END"                               -> key = "end"
+            "PAGE_UP", "PG_UP"                  -> key = "page-up"
+            "PAGE_DOWN", "PG_DOWN"              -> key = "page-down"
+            "NEXT"                              -> key = "next"
+            "PREVIOUS", "PREV"                  -> key = "previous"
+            "PLAY_PAUSE", "PLAY","PP"           -> key = "play-pause"
+            "VOLUME_UP", "VOL_UP"               -> key = "volume-up"
+            "VOLUME_DOWN", "VOL_DOWN"           -> key = "volume-down"
+            "F1"                                -> key = "f1"
+            "F2"                                -> key = "f2"
+            "F3"                                -> key = "f3"
+            "F4"                                -> key = "f4"
+            "F5"                                -> key = "f5"
+            "F6"                                -> key = "f6"
+            "F7"                                -> key = "f7"
+            "F8"                                -> key = "f8"
+            "F9"                                -> key = "f9"
+            "F10"                               -> key = "f10"
+            "F11"                               -> key = "f11"
+            "F12"                               -> key = "f12"
+
+
+        }
+        if (!key.isEmpty()) {
+            val scanCodes = KeyCodeTranslation.keyCharToScanCodes(key)
+
+            if (scanCodes == null) {
+                val error = "key: '$key' is not supported."
+                Timber.e(error)
+                return
+            }
+
+            if (scanCodes.second != 0x0.toByte()) {
+                mainViewModel.addStandardKey(scanCodes.first, scanCodes.second)
+            }
+        }
+    }
+
+}
