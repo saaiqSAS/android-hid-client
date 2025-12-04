@@ -24,7 +24,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import me.arianb.usb_hid_client.MainViewModel
 import me.arianb.usb_hid_client.hid_utils.KeyCodeTranslation
@@ -46,17 +50,17 @@ fun ScriptsDisplayView(mainViewModel: MainViewModel = viewModel()) {
 
     val context = LocalContext.current
     val contentResolver = context.contentResolver
-    val scriptFileExtension = ".txt"
+    val scriptFileExtensions =  listOf(".ahc", ".duck", ".txt")
 
     val filePickerLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             uri?.let {
                 val mimeType = context.contentResolver.getType(uri)
-                if (mimeType == "text/plain" && uri.path.toString().endsWith(scriptFileExtension)) {
+                if (mimeType == "text/plain" && scriptFileExtensions.any { uri.path.toString().endsWith(it) }) {
                     scriptPathString = uri.path.toString()
                     scriptFileUri = uri
                 } else {
-                    Toast.makeText(context,"Only $scriptFileExtension files are accepted", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context,"Only (${scriptFileExtensions.joinToString(", ")}) files are accepted", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -65,17 +69,33 @@ fun ScriptsDisplayView(mainViewModel: MainViewModel = viewModel()) {
     Column(
         modifier = Modifier
             .fillMaxHeight()
-            .padding(0.dp, PaddingLarge,0.dp,0.dp),
+            .padding(0.dp, 0.dp,0.dp,0.dp),
         verticalArrangement = Arrangement.spacedBy(PaddingSmall),
         horizontalAlignment = Alignment.CenterHorizontally,
 
     ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = mainViewModel.scriptLog.value,
+                textAlign = TextAlign.Left,
+                style = TextStyle(
+                    fontSize = 14.sp, // Set font size
+                )
+            )
+        }
+
         TextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight(),
             value = scriptPathString,
-            label = { Text("Script File Path ($scriptFileExtension)") },
+            label = { Text("Script File Path") },
             onValueChange = { scriptPathString = it },
             readOnly = true
         )
@@ -106,6 +126,7 @@ fun ScriptsDisplayView(mainViewModel: MainViewModel = viewModel()) {
                 Text("Execute")
             }
         }
+
 
     }
 
@@ -146,12 +167,13 @@ fun readFileFromUri(contentResolver: ContentResolver, fileUri: Uri): String? {
 
 fun scriptExecutor(script: String, mainViewModel: MainViewModel) {
     //---------- Contribution by saaiqSAS ----------
-    // DECODER FOR SCRIPTING FORMAT
+    // INTERPRETER FOR SCRIPTING FORMAT
     // This method allows the use of scripting. The entire script should be passed to this method and it will be executed line by line
 
     val lines = (script).split("\n")
+    var lineNum = 0
 
-
+    mainViewModel.updateScriptLog("") // reset
     Timber.d("num of lines: " + lines.size) //test
 
     for (line in lines) {
@@ -159,6 +181,7 @@ fun scriptExecutor(script: String, mainViewModel: MainViewModel) {
         var key = ""
         var para = ""
         val firstSpace = line.indexOf(" ")
+        lineNum++
 
         Timber.d("line: " + line) //test
 
@@ -183,7 +206,7 @@ fun scriptExecutor(script: String, mainViewModel: MainViewModel) {
             "L_CTRL", "L_CONTROL", "CTRL"       -> key = "left-ctrl"
             "L_ALT", "ALT"                      -> key = "left-alt"
             "L_SHIFT", "SHIFT"                  -> key = "left-shift"
-            "L_META", "L_WIN", "WIN"            -> key = "left-meta"
+            "L_META", "L_WIN", "META", "WIN"    -> key = "left-meta"
             "R_CTRL", "R_CONTROL"               -> key = "right-ctrl"
             "R_ALT"                             -> key = "right-alt"
             "R_SHIFT"                           -> key = "right-shift"
@@ -227,8 +250,13 @@ fun scriptExecutor(script: String, mainViewModel: MainViewModel) {
             "F11"                               -> key = "f11"
             "F12"                               -> key = "f12"
 
+            else -> {
+                mainViewModel.updateScriptLog("Error at line $lineNum")
+                return
+            }
 
         }
+
         if (!key.isEmpty()) {
             val scanCodes = KeyCodeTranslation.keyCharToScanCodes(key)
 
@@ -243,5 +271,5 @@ fun scriptExecutor(script: String, mainViewModel: MainViewModel) {
             }
         }
     }
-
+    mainViewModel.updateScriptLog("Script Executed")
 }

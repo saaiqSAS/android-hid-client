@@ -5,9 +5,14 @@ import android.util.TypedValue
 import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -48,19 +53,30 @@ fun HelpPage() {
         arrayOf(
             Pair(R.string.help_faq_q1, R.string.help_faq_a1),
             Pair(R.string.help_faq_q2, R.string.help_faq_a2),
-            Pair(R.string.help_faq_q3, R.string.help_faq_a3)
+            Pair(R.string.help_faq_q3, R.string.help_faq_a3),
+            Pair(R.string.help_faq_q4, R.string.help_faq_a4),
+            Pair(R.string.help_faq_q5, R.string.help_faq_a5),
+            Pair(R.string.help_faq_q6, R.string.help_faq_a6)
         )
     }
 
+    val scrollState = rememberScrollState()
     BasicPage(
         topBar = { HelpTopBar() },
         padding = PaddingValues(all = PaddingNormal),
         verticalArrangement = Arrangement.spacedBy(PaddingNone, Alignment.Top),
     ) {
-        for (pair in questionAnswerPairs) {
-            key(pair) {
-                QuestionAnswer(pair.first, pair.second)
-                Spacer(Modifier.height(PaddingExtraLarge))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .verticalScroll(scrollState)  // Apply vertical scrolling
+        ) {
+            for (pair in questionAnswerPairs) {
+                key(pair) {
+                    QuestionAnswer(pair.first, pair.second)
+                    Spacer(Modifier.height(PaddingExtraLarge))
+                }
             }
         }
     }

@@ -2,6 +2,7 @@ package me.arianb.usb_hid_client
 
 import android.app.Application
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,6 +47,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val rootStateHolder = RootStateHolder.getInstance()
     private val userPreferencesStateFlow = UserPreferencesRepository.getInstance(application).userPreferencesFlow
 
+    var scriptLog = mutableStateOf("")
+        private set
+
+    fun updateScriptLog(newText: String) {
+        scriptLog.value = newText
+    }
     val keySender: StateFlow<KeySender> = userPreferencesStateFlow
         .mapState {
             KeySender(it.keyboardCharacterDevicePath)

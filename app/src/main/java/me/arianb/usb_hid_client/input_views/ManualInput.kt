@@ -146,6 +146,7 @@ fun sendInput(stringToSend: String, mainViewModel: MainViewModel) {
     // {[E]} for Escape
     // {[T]} for Tab
     // {[B]} for Backspace
+    // {[N]} for Enter
     // {[U]} for Up
     // {[D]} for Down
     // {[R]} for Right
@@ -182,6 +183,7 @@ fun sendInput(stringToSend: String, mainViewModel: MainViewModel) {
                     'E' -> key = "escape"
                     'T' -> key = "tab"
                     'B' -> key = "backspace"
+                    'N' -> key = "\n"
                     'U' -> key = "up"
                     'D' -> key = "down"
                     'R' -> key = "right"
