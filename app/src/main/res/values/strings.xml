@@ -7,7 +7,12 @@
     <string name="manual_input">Manual Input</string> <!-- Reused as preference category header -->
     <string name="touchpad_label">Touchpad</string> <!-- Reused as preference category header -->
     <string name="send">Send</string>
-    <string name="exec">Execute as Script</string>
+    <string name="execute_manual_input">Execute</string>
+    <string name="save">Save</string>
+
+    <string name="select">Select</string>
+    <string name="edit">Edit</string>
+    <string name="execute_script">Execute</string>
 
     <!-- Settings Screen -->
     <string name="settings">Settings</string>
@@ -68,7 +73,8 @@
     <string name="contributors">
         \n<b>---------- Project Contributors ----------</b>
         \n\n - IzzyOnDroid - \n(added this app to his F-Droid repository)
-        \n\n - saaiqSAS - \n(Scripting support, Script file support, {[X]} tag format support, UI improvements, Help and About page updates)
+        \n\n - weiluntong - \n(Suggested visibility toggle of ManualInput)
+        \n\n - saaiqSAS - \n(Scripting support, Script file support, {[X]} tag format support, Major UI improvements, Help and About page updates, etc)
         \n\n<b>-----------------------------------------------</b>
     </string>
     <string name="license">\nLicensed under GNU GPLv3</string>
@@ -89,10 +95,12 @@
     <string name="help_faq_q1">How do I use the app?</string>
     <string name="help_faq_a1">
            > Directly use your phone as a touchpad by interacting with the \"Touchpad\".
-        \n > Directly use your phone as a keyboard using \"Direct Input\"
-        \n > Send text (inject keystroke) using \"Manual Input\" with \"Send\" button.
-        \n > Directly execute scripts using \"Manual Input\"  with \"Execute as Script\" button.
-        \n > Select and execute plain text script file of (.ahc, .duck, .txt) extensions.
+        \n\n > Directly use your phone as a keyboard using \"Direct Input\"
+        \n\n > Send text (inject keystroke) using \"Manual Input\" with \"Send\" button.
+        \n\n > Directly execute scripts using \"Manual Input\"  with \"Execute\" button below \"Manual Input\".
+        \n\n > Save script in \"Manual Input\" to script file with \"Save\" button
+        \n\n > Select and execute plain text script file of (.ahc, .duck, .txt) extensions using buttons below \"Script File Path\".
+        \n\n > Load the script within a selected script file onto \"Manual Input\" with the \"Edit\" button.
     </string>
 
     <string name="help_faq_q2">Direct Input</string>
@@ -155,16 +163,18 @@
         \n {[M]}r{[ ]}{[ ]}notepad{[N]}
 
         \n\nDo note that a new line in the manual input is also processed as ENTER in addition to {[N]}.
-        For a more readable solution use scripting
+        For a more readable solution use scripting format with the \"Execute\" button below Manual Input.
     </string>
 
     <string name="help_faq_q4">Scripting</string>
     <string name="help_faq_a4">
-        The following commands can be used for scripting:
+        The following commands and keys can be used for scripting. Some commands and keys will have multiple variations for same function
+        or key and are separated by \' , \' (comma).
+        \nDo note that only COMMANDS will take a parameter. MODIFIER KEYS and SPECIAL KEYS will not take any parameter.
+
         \n\n   ----------------------------------------
         \n COMMANDS:
         \n   ----------------------------------------
-        \n   Only commands will take a parameter
 
         \n\n //, REM                          -> comments
         \n\n NAME                             -> name of script - treated as comment

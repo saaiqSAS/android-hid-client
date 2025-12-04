@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -24,16 +25,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import me.arianb.usb_hid_client.MainViewModel
+import me.arianb.usb_hid_client.R
 import me.arianb.usb_hid_client.hid_utils.KeyCodeTranslation
-import me.arianb.usb_hid_client.ui.theme.PaddingLarge
-import me.arianb.usb_hid_client.ui.theme.PaddingNormal
+import me.arianb.usb_hid_client.ui.theme.PaddingExtraSmall
 import me.arianb.usb_hid_client.ui.theme.PaddingSmall
 import timber.log.Timber
 import java.io.BufferedReader
@@ -56,7 +57,7 @@ fun ScriptsDisplayView(mainViewModel: MainViewModel = viewModel()) {
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             uri?.let {
                 val mimeType = context.contentResolver.getType(uri)
-                if (mimeType == "text/plain" && scriptFileExtensions.any { uri.path.toString().endsWith(it) }) {
+                if ((mimeType == "text/plain" || mimeType == "application/octet-stream") && scriptFileExtensions.any { uri.path.toString().endsWith(it) }) {
                     scriptPathString = uri.path.toString()
                     scriptFileUri = uri
                 } else {
@@ -77,15 +78,19 @@ fun ScriptsDisplayView(mainViewModel: MainViewModel = viewModel()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight(),
+                .wrapContentHeight()
+                .padding(0.dp, PaddingExtraSmall,0.dp,0.dp),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .padding(0.dp, 0.dp,0.dp,0.dp),
                 text = mainViewModel.scriptLog.value,
                 textAlign = TextAlign.Left,
                 style = TextStyle(
-                    fontSize = 14.sp, // Set font size
+                    fontSize = 14.sp,
                 )
             )
         }
@@ -109,21 +114,60 @@ fun ScriptsDisplayView(mainViewModel: MainViewModel = viewModel()) {
             Button(
                 modifier = Modifier
                     .wrapContentSize()
-                    .padding(0.dp,0.dp,PaddingNormal,0.dp),
+                    .padding(0.dp,0.dp,PaddingExtraSmall,0.dp),
+                shape = RoundedCornerShape(
+                    topStart = 20.dp,
+                    topEnd = 0.dp,
+                    bottomStart = 20.dp,
+                    bottomEnd = 0.dp
+                ),
                 onClick = onClick@{
                     filePickerLauncher.launch("application/plain")
                 }
             ) {
-                Text("Select")
+                Text(stringResource(R.string.select))
+            }
+
+            Button(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .padding(0.dp,0.dp, PaddingExtraSmall,0.dp),
+                shape = RoundedCornerShape(
+                    topStart = 0.dp,
+                    topEnd = 0.dp,
+                    bottomStart = 0.dp,
+                    bottomEnd = 0.dp
+                ),
+                onClick = onClick@{
+                    if (scriptFileUri == null) {
+                        Toast.makeText(context, "Select script file first", Toast.LENGTH_SHORT).show()
+                        return@onClick
+                    }
+                    val script = readFileFromUri(contentResolver, scriptFileUri!!).toString()
+                    mainViewModel.setManualInputText(script)
+
+                }
+            ) {
+                Text(stringResource(R.string.edit))
             }
 
             Button(
                 modifier = Modifier.wrapContentSize(),
+                shape = RoundedCornerShape(
+                    topStart = 0.dp,
+                    topEnd = 20.dp,
+                    bottomStart = 0.dp,
+                    bottomEnd = 20.dp
+                ),
                 onClick = onClick@{
+                    if (scriptFileUri == null) {
+                        Toast.makeText(context, "Select script file first", Toast.LENGTH_SHORT).show()
+                        return@onClick
+                    }
                     executeScriptFile(contentResolver, scriptFileUri, mainViewModel)
                 }
             ) {
-                Text("Execute")
+                Text(stringResource(R.string.execute_script))
             }
         }
 
@@ -140,8 +184,8 @@ fun executeScriptFile(contentResolver: ContentResolver, scriptFileUri: Uri?, mai
     }
 }
 
-fun readFileFromUri(contentResolver: ContentResolver, fileUri: Uri): String? {
-    var fileContent: String? = null
+fun readFileFromUri(contentResolver: ContentResolver, fileUri: Uri): String {
+    var fileContent = ""
     val inputStream = contentResolver.openInputStream(fileUri)
 
     inputStream?.let {
@@ -161,7 +205,7 @@ fun readFileFromUri(contentResolver: ContentResolver, fileUri: Uri): String? {
             it.close()
         }
     }
-    return fileContent
+    return fileContent.removeSuffix("\n")
 }
 
 
@@ -174,7 +218,6 @@ fun scriptExecutor(script: String, mainViewModel: MainViewModel) {
     var lineNum = 0
 
     mainViewModel.updateScriptLog("") // reset
-    Timber.d("num of lines: " + lines.size) //test
 
     for (line in lines) {
         val command: String
@@ -183,17 +226,12 @@ fun scriptExecutor(script: String, mainViewModel: MainViewModel) {
         val firstSpace = line.indexOf(" ")
         lineNum++
 
-        Timber.d("line: " + line) //test
-
         if (firstSpace == -1) {
             command = line
         } else {
             command = line.take(firstSpace)
             para = line.substring(firstSpace + 1)
         }
-
-        Timber.d("command: $command") //test
-        Timber.d("para: $para") //test
 
         when (command.uppercase(getDefault())) {
             //COMMANDS - only commands takes a parameter

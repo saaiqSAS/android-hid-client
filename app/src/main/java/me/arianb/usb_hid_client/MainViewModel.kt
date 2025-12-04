@@ -53,6 +53,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun updateScriptLog(newText: String) {
         scriptLog.value = newText
     }
+
+    var manualInputText = mutableStateOf("")
+        private set
+
+    fun setManualInputText(newText: String) {
+        manualInputText.value = newText
+    }
+
+    fun getManualInputText() : String{
+        return manualInputText.value
+    }
+
     val keySender: StateFlow<KeySender> = userPreferencesStateFlow
         .mapState {
             KeySender(it.keyboardCharacterDevicePath)
