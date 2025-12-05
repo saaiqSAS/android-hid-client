@@ -83,13 +83,39 @@ The following updates have been made in this fork:
 
 </br>
 
+**Example 1: To open notepad in Windows using Scripting**
+>  ```
+>  // This is a comment
+>  WIN
+>  SEND r
+>  SLEEP 1000
+>  SEND notepad
+>  ENTER
+>  ```
+>  ```
+>  REM This is a comment
+>  META
+>  STRING r
+>  DELAY 1000
+>  STRINGLN notepad
+>  ```
+>  Multiple command/key variations are available for a single function or key. The above scripts can be either executed from a script file or directly from Manual Input with the corresponding **Execute** button.
+
+</br>
+
+**Example 2: To open notepad in Windows using `{[X]}` tag** with Manual Input
+>  ``` 
+>  {[M]}r{[ ]}{[ ]}notepad{[N]}
+>  ```
+> This string should be send via the **Send** button in Manual Input.
+
+</br>
+</br>
+
 <!-- ABOUT THE PROJECT -->
 
 ## About The Project
 
-[<img src="images/v8_screenshot_1.png"
-alt="Main screen"
-height="350">](v8_screenshot_1.png) 
 [<img src="images/v8_screenshot_2.png"
 alt="Main screen"
 height="350">](v8_screenshot_2.png) 
