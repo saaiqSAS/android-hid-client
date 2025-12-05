@@ -34,6 +34,9 @@
   <summary>Table of Contents</summary>
   <ol>
     <li>
+      <a href="#fork-updates">Fork Updates</a>
+    </li>
+    <li>
       <a href="#about-the-project">About The Project</a>
     </li>
     <li>
@@ -50,24 +53,55 @@
   </ol>
 </details>
 
+## Fork Updates
+This project is originally forked from v3.0.1 of the [Arian04/android-hid-client](https://github.com/Arian04/android-hid-client). 
 
+**Latest App Release for this fork: [v3.0.1_saaiqsas_8](github.com/saaiqSAS/android-hid-client/releases/tag/v3.0.1_saaiqsas_8)**
+
+</br>
+
+The following updates have been made in this fork:
+- **Scripting Support:** Added scripting functionality for enhanced automation and control.
+
+- **Script File Support:** Added support for plaintext script files with the extensions `.ahc`, `.duck`, and `.txt`.
+
+- **Additional Script Features:** Including the ability to Save, Edit scripts.
+
+- **Special/Modifier Key Support for Manual Input:** Introduced `{[X]}` tag format to allow special or modifier keys to be passed in Manual Input mode.
+
+- **Manual Input Visibility Toggle:** Added a toggle to change visibility in Manual Input (Issue [#51](https://github.com/Arian04/android-hid-client/issues/51), by [weiluntong](https://github.com/weiluntong)).
+
+- **Updated Help Page:** Revised the help page to provide details on the newly added features.
+
+- **Updated About Page:** Updated the About page to show the developer, contributors, license, and app version.
+
+- **Major UI Improvements:** Mainpage layout arrangement changed, multiple pages made scrollable.
+
+</br>
+
+> **Note:** Details on scripting and the `{[X]}` tag format will be provided in the **Help page** of the app. Furthermore, the screenshots in this fork (under "About The Project") are updated to show the latest app version of this fork
+
+</br>
 
 <!-- ABOUT THE PROJECT -->
 
 ## About The Project
 
-[<img src="images/app-screenshot1.png"
+[<img src="images/v8_screenshot_1.png"
 alt="Main screen"
-height="350">](images/app-screenshot1.png)
-[<img src="images/app-screenshot2.png"
-alt="Main screen with menu open"
-height="350">](images/app-screenshot2.png)
-[<img src="images/app-screenshot3.png"
-alt="App settings screen"
-height="350">](images/app-screenshot3.png)
-[<img src="images/app-screenshot4.png"
-alt="Help screen with frequently asked questions"
-height="350">](images/app-screenshot4.png)
+height="350">](v8_screenshot_1.png) 
+[<img src="images/v8_screenshot_2.png"
+alt="Main screen"
+height="350">](v8_screenshot_2.png) 
+[<img src="images/v8_screenshot_3.png"
+alt="Main screen"
+height="350">](v8_screenshot_3.png) 
+[<img src="images/v8_screenshot_4.png"
+alt="Main screen"
+height="350">](v8_screenshot_4.png) 
+[<img src="images/v8_screenshot_5.png"
+alt="Main screen"
+height="350">](v8_screenshot_5.png) 
 
 This Android app allows you your phone to present itself to a connected device as a keyboard and mouse.
 Since this happens at a very low level, the connected device sees it exactly as a normal keyboard and mouse, meaning
